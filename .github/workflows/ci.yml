@@ -46,4 +46,4 @@ jobs:
         CR_PAT: ${{ secrets.CR_PAT }}  # Personal Access Token untuk GHCR
       run: |
         echo $CR_PAT | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-        docker push ghcr.io/${{ github.repository }}/myapp:${{ steps.taggerDryRun.outputs.new_tag }}
+        docker push ghcr.io/${{ steps.lowercase-repo.outputs.repo }}/myapp:${{ steps.taggerDryRun.outputs.new_tag }}
