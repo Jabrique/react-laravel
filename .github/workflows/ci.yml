@@ -20,10 +20,6 @@ jobs:
       with:
         fetch-depth: '0'
 
-    - name: Determine Branch
-      id: determine-branch
-      run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
-
     - name: Minor version for each merge (Dry Run)
       id: taggerDryRun
       uses: anothrNick/github-tag-action@1.70.0
@@ -31,7 +27,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.CR_PAT }}
         WITH_V: true
         DRY_RUN: true
-        PRERELEASE: ${{ steps.determine-branch.outputs.branch == 'dev' && 'true' || 'false' }}
+        PRERELEASE: ${{ github.base_ref == 'dev' && 'true' || 'false' }}
         PRERELEASE_SUFFIX: 'dev'
 
     - name: Echo new tag
