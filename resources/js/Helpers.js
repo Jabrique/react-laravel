@@ -1,5 +1,5 @@
-import iziToast from 'iziToast'
-import 'iziToast/dist/css/iziToast.css';
+import iziToast from 'izitoast'
+import 'izitoast/dist/css/iziToast.css';
 import { fadeIn } from 'animate.css'
 
 export function showSznNotification(params) {
