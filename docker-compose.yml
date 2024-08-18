@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  app:
+    image: test:v1
+    container_name: laravel-react-app
+    ports:
+      - "8080:80"
+    networks:
+      - app-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: test
+      MYSQL_DATABASE: react-laravel
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
