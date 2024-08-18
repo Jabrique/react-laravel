@@ -38,7 +38,7 @@ jobs:
         TAG_PREFIX: ${{ steps.determine-branch.outputs.branch == 'dev' && 'dev-' || '' }}
 
     - name: Echo new tag
-      run: echo "The next tag version will be: ${{ steps.taggerDryRun.outputs.new_tag }}"
+      run: echo "The next tag version will be ${{ steps.taggerDryRun.outputs.new_tag }}"
 
     - name: Build Docker image
       run: docker build -t ghcr.io/${{ github.repository }}/myapp:${{ steps.taggerDryRun.outputs.new_tag }} .
