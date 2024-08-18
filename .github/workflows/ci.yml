@@ -31,7 +31,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.CR_PAT }}
         WITH_V: true
         DRY_RUN: true
-      with:
         PRERELEASE: ${{ steps.determine-branch.outputs.branch == 'dev' && 'true' || 'false' }}
         PRERELEASE_SUFFIX: 'dev'
 
