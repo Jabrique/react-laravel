@@ -3,7 +3,7 @@ import Pagination from "react-js-pagination";
 import { useSelector, connect } from 'react-redux';
 import rootAction from '../redux/actions/index'
 import { fadeIn } from 'animate.css'
-import 'iziToast/dist/css/iziToast.css';
+import 'izitoast/dist/css/iziToast.css';
 
 function Dashboard(props) {
 
@@ -18,7 +18,7 @@ function Dashboard(props) {
 
     useEffect(() => {
         if (typeof window !== "undefined") {
-            const iziToast = require('iziToast');
+            const iziToast = require('izitoast');
 
             iziToast.show({
                 timeout: 0,
