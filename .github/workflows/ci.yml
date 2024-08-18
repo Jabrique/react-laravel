@@ -5,47 +5,45 @@ on:
       - main
       - dev
 concurrency: ${{ github.ref_name }}
-jobs:
-  check-branches:
-    runs-on: self-hosted
+jobs: 
+  build:
+    runs-on: self-hosted 
+    environment: secrets
     steps:
-      - name: Check branches
-        run: |
+    - name: Check branches
+      run: |
           if [ ${{ github.head_ref }} != "dev" ] && [ ${{ github.base_ref }} == "main" ]; then
             echo "Merge requests to main branch are only allowed from dev branch."
             exit 1
           fi
-  build:
-    runs-on: self-hosted 
-    steps:
     - name: Checkout code
       uses: actions/checkout@v2
       with:
         fetch-depth: '0'
 
-    - name: Determine Branch
-      id: determine-branch
-      run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
-
     - name: Minor version for each merge (Dry Run)
       id: taggerDryRun
-      uses: anothrNick/github-tag-action@1.36.0
+      uses: anothrNick/github-tag-action@1.70.0
       env:
         GITHUB_TOKEN: ${{ secrets.CR_PAT }}
         WITH_V: true
         DRY_RUN: true
-      with:
-        TAG_PREFIX: ${{ steps.determine-branch.outputs.branch == 'dev' && 'dev-' || '' }}
+        PRERELEASE: ${{ github.base_ref == 'dev' && 'true' || 'false' }}
+        PRERELEASE_SUFFIX: 'dev'
 
     - name: Echo new tag
-      run: echo "The next tag version will be: ${{ steps.taggerDryRun.outputs.new_tag }}"
+      run: echo "The next tag version will be ${{ steps.taggerDryRun.outputs.new_tag }}"
+
+    - name: Set lowercase repository name
+      id: lowercase-repo
+      run: echo "::set-output name=repo::$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
 
     - name: Build Docker image
-      run: docker build -t ghcr.io/${{ github.repository }}/myapp:${{ steps.taggerDryRun.outputs.new_tag }} .
+      run: docker build -t ghcr.io/${{ steps.lowercase-repo.outputs.repo }}/myapp:${{ steps.taggerDryRun.outputs.new_tag }} .
 
     - name: Push Docker image to GHCR
       env:
         CR_PAT: ${{ secrets.CR_PAT }}  # Personal Access Token untuk GHCR
       run: |
         echo $CR_PAT | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-        docker push ghcr.io/${{ github.repository }}/myapp:${{ steps.taggerDryRun.outputs.new_tag }}
+        docker push ghcr.io/${{ steps.lowercase-repo.outputs.repo }}/myapp:${{ steps.taggerDryRun.outputs.new_tag }}
