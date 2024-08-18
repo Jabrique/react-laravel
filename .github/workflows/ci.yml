@@ -32,7 +32,8 @@ jobs:
         WITH_V: true
         DRY_RUN: true
       with:
-        TAG_PREFIX: ${{ steps.determine-branch.outputs.branch == 'dev' && 'dev-' || '' }}
+        PRERELEASE: ${{ steps.determine-branch.outputs.branch == 'dev' && 'true' || 'false' }}
+        PRERELEASE_SUFFIX: 'dev'
 
     - name: Echo new tag
       run: echo "The next tag version will be ${{ steps.taggerDryRun.outputs.new_tag }}"
