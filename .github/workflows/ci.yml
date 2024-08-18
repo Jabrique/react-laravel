@@ -7,8 +7,8 @@ on:
 concurrency: ${{ github.ref_name }}
 jobs:
   check-branches:
-    runs-on: self-hosted
     if: github.base_ref == 'main'
+    runs-on: self-hosted
     steps:
       - name: Check branches
         run: |
