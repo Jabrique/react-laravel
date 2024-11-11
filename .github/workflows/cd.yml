@@ -15,17 +15,17 @@ jobs:
         fetch-depth: '0'
 
     - name: Minor version for each merge (Dry Run)
-        id: taggerDryRun
-        uses: anothrNick/github-tag-action@1.70.0
-        env:
-          GITHUB_TOKEN: ${{ CR_PAT }}
-          WITH_V: true
-          DRY_RUN: true
-          PRERELEASE: ${{ github.base_ref == 'dev' && 'true' || 'false' }}
-          PRERELEASE_SUFFIX: 'dev'
+      id: taggerDryRun
+      uses: anothrNick/github-tag-action@1.70.0
+      env:
+        GITHUB_TOKEN: ${{ CR_PAT }}
+        WITH_V: true
+        DRY_RUN: true
+        PRERELEASE: ${{ github.base_ref == 'dev' && 'true' || 'false' }}
+        PRERELEASE_SUFFIX: 'dev'
 
     - name: Echo new tag
-      run: echo "The next tag version will be: ${{ steps.taggerDryRun.outputs.new_tag }}"
+      run: echo "The next tag version will be ${{ steps.taggerDryRun.outputs.new_tag }}"
 
     - name: Deploy to Server
       uses: appleboy/ssh-action@master
