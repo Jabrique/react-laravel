@@ -25,7 +25,7 @@ jobs:
         id: taggerDryRun
         uses: anothrNick/github-tag-action@1.70.0
         env:
-          GITHUB_TOKEN: ${{ github.ref == 'refs/heads/main' && prod.CR_PAT || dev.CR_PAT }}
+          GITHUB_TOKEN: ${{ github.ref == 'refs/heads/main' && secrets.CR_PAT || secrets.CR_PAT }}
           WITH_V: true
           DRY_RUN: true
           PRERELEASE: ${{ github.base_ref == 'dev' && 'true' || 'false' }}
@@ -39,8 +39,8 @@ jobs:
 
       - name: Push Docker image to Docker Hub
         env:
-          DOCKER_USERNAME: ${{ github.ref == 'refs/heads/main' && prod.DOCKER_USERNAME || dev.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ github.ref == 'refs/heads/main' && prod.DOCKER_PASSWORD || dev.DOCKER_PASSWORD }}
+          DOCKER_USERNAME: ${{ github.ref == 'refs/heads/main' && secrets.DOCKER_USERNAME || secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ github.ref == 'refs/heads/main' && secrets.DOCKER_PASSWORD || secrets.DOCKER_PASSWORD }}
         run: |
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
           docker push jabriq/react-laravel:${{ steps.taggerDryRun.outputs.new_tag }}
