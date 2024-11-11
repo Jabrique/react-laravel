@@ -5,45 +5,42 @@ on:
       - main
       - dev
 concurrency: ${{ github.ref_name }}
-jobs: 
+jobs:
   build:
-    runs-on: self-hosted 
-    environment: secrets
+    runs-on: self-hosted
+    environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
     steps:
-    - name: Check branches
-      run: |
-          if [ ${{ github.head_ref }} != "dev" ] && [ ${{ github.base_ref }} == "main" ]; then
-            echo "Merge requests to main branch are only allowed from dev branch."
-            exit 1
-          fi
-    - name: Checkout code
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: '0'
+      - name: Check branches
+        run: |
+            if [ ${{ github.head_ref }} != "dev" ] && [ ${{ github.base_ref }} == "main" ]; then
+              echo "Merge requests to main branch are only allowed from dev branch."
+              exit 1
+            fi
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
 
-    - name: Minor version for each merge (Dry Run)
-      id: taggerDryRun
-      uses: anothrNick/github-tag-action@1.70.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.CR_PAT }}
-        WITH_V: true
-        DRY_RUN: true
-        PRERELEASE: ${{ github.base_ref == 'dev' && 'true' || 'false' }}
-        PRERELEASE_SUFFIX: 'dev'
+      - name: Minor version for each merge (Dry Run)
+        id: taggerDryRun
+        uses: anothrNick/github-tag-action@1.70.0
+        env:
+          GITHUB_TOKEN: ${{ github.ref == 'refs/heads/main' && prod.CR_PAT || dev.CR_PAT }}
+          WITH_V: true
+          DRY_RUN: true
+          PRERELEASE: ${{ github.base_ref == 'dev' && 'true' || 'false' }}
+          PRERELEASE_SUFFIX: 'dev'
 
-    - name: Echo new tag
-      run: echo "The next tag version will be ${{ steps.taggerDryRun.outputs.new_tag }}"
+      - name: Echo new tag
+        run: echo "The next tag version will be ${{ steps.taggerDryRun.outputs.new_tag }}"
 
-    - name: Set lowercase repository name
-      id: lowercase-repo
-      run: echo "::set-output name=repo::$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
+      - name: Build Docker image
+        run: docker build -t jabriq/react-laravel:${{ steps.taggerDryRun.outputs.new_tag }} .
 
-    - name: Build Docker image
-      run: docker build -t ghcr.io/${{ steps.lowercase-repo.outputs.repo }}/myapp:${{ steps.taggerDryRun.outputs.new_tag }} .
-
-    - name: Push Docker image to GHCR
-      env:
-        CR_PAT: ${{ secrets.CR_PAT }}  # Personal Access Token untuk GHCR
-      run: |
-        echo $CR_PAT | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-        docker push ghcr.io/${{ steps.lowercase-repo.outputs.repo }}/myapp:${{ steps.taggerDryRun.outputs.new_tag }}
+      - name: Push Docker image to Docker Hub
+        env:
+          DOCKER_USERNAME: ${{ github.ref == 'refs/heads/main' && prod.DOCKER_USERNAME || dev.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ github.ref == 'refs/heads/main' && prod.DOCKER_PASSWORD || dev.DOCKER_PASSWORD }}
+        run: |
+          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+          docker push jabriq/react-laravel:${{ steps.taggerDryRun.outputs.new_tag }}
