@@ -41,6 +41,8 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: ${{ secrets.SSH_PORT }}
         script: |
+          pwd && ls -al
+          docker info
           docker pull jabriq/react-laravel:${{ steps.taggerDryRun.outputs.new_tag }}
           docker-compose down
           docker-compose up -d
