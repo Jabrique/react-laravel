@@ -29,16 +29,13 @@ jobs:
 
     - name: Deploy to Server
       uses: appleboy/ssh-action@master
-      env:
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: ${{ secrets.SSH_PORT }}
         script: |
-          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker pull jabriq/react-laravel:${{ steps.taggerDryRun.outputs.new_tag }}
           cd react-laravel
           sed -ir 's#laravel-react:v.*#laravel-react:${{ steps.taggerDryRun.outputs.new_tag }}'
