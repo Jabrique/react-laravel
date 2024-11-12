@@ -50,3 +50,5 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.CR_PAT }}
         DRY_RUN: false
         WITH_V: true
+        PRERELEASE: ${{ github.ref == 'refs/heads/dev' && 'true' || 'false' }}
+        PRERELEASE_SUFFIX: 'dev'
