@@ -38,7 +38,7 @@ jobs:
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
           docker pull jabriq/react-laravel:${{ steps.taggerDryRun.outputs.new_tag }}
           cd react-laravel
-          sed -ir 's#laravel-react:v.*#laravel-react:${{ steps.taggerDryRun.outputs.new_tag }}#g' ./docker-compose.yml
+          sed -ir 's#jabriq/laravel-react:v.*#jabriq/laravel-react:${{ steps.taggerDryRun.outputs.new_tag }}#g' ./docker-compose.yml
           docker-compose down
           docker-compose up -d
           docker exec laravel-react-app php artisan migrate
